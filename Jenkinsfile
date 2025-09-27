@@ -1,24 +1,30 @@
 pipeline{
   agent any
   environment{
-    VENV = 'venv'
+    IMAGE_NAME = 'HrugvedaMane08/test-flask'
   }
   stages{
-    stage('Checkout git'){
+    stage('Checkout'){
       steps{
-        git branch: 'main', url: 'https://github.com/Parth2k3/test-flask'
+        git branch: 'main', url: 'https://github.com/HrugvedaMane08/test-flask
+        '
       }
     }
-    stage('set up the venv'){
+    stage('Build Docker Image'){
       steps{
-        bat 'python -m venv %VENV%'
-        bat '%VENV%\\Scripts\\python -m pip install --upgrade pip'
-        bat '%VENV%\\Scripts\\pip install -r requirements.txt'
+        bat "docker build -t %IMAGE_NAME%:latest ."
       }
     }
-    stage('RUN THE TESTS'){
+    stage('Push to Dockerhub'){
       steps{
-        bat '%VENV%\\Scripts\\python -m unittest discover -s tests'
+        withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+          bat """
+          echo %DOCKER_PASS% |
+          docker login -u %DOCKER_USER% --password-stdin
+          docker push %IMAGE_NAME%:latest
+          docker logout
+          """
+        }
       }
     }
   }
