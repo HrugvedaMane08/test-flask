@@ -6,8 +6,7 @@ pipeline{
   stages{
     stage('Checkout'){
       steps{
-        git branch: 'main', url: 'https://github.com/HrugvedaMane08/test-flask
-        '
+        git branch: 'main', url: 'https://github.com/HrugvedaMane08/test-flask'
       }
     }
     stage('Build Docker Image'){
